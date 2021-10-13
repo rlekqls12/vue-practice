@@ -1,0 +1,53 @@
+<!-- https://kr.vuejs.org/v2/api/ -->
+<!-- v-bind: === : -->
+<!-- v-on:   === @ -->
+<!-- v-slot: === # -->
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Vanila VueJS</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <p>Life Cycle (View Console)</p>
+      <button v-on:click="destroy">Destory Vue</button>
+    </div>
+    <script>
+      var app = new Vue({
+        el: "#app",
+        data: {},
+        beforeCreate: function () {
+          console.log("beforeCreate vue components");
+        },
+        created: function () {
+          console.log("created vue components");
+        },
+        beforeMount: function () {
+          console.log("beforeMount vue components");
+        },
+        mounted: function () {
+          console.log("mounted vue components");
+        },
+        beforeUpdate: function () {
+          console.log("beforeUpdate vue components");
+        },
+        updated: function () {
+          console.log("updated vue components");
+        },
+        beforeDestroy: function () {
+          console.log("beforeDestroy vue components");
+        },
+        destroyed: function () {
+          console.log("destroyed vue components");
+        },
+        methods: {
+          destroy: function () {
+            this.$destroy();
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

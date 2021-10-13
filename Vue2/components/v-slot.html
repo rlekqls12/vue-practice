@@ -1,0 +1,176 @@
+<!-- https://kr.vuejs.org/v2/api/ -->
+<!-- v-bind: === : -->
+<!-- v-on:   === @ -->
+<!-- v-slot: === # -->
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Vanila VueJS</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  </head>
+  <body>
+    <!-- slot, slot-scope는 2.6.0+ 부터 지원 중단 예정 -->
+    <!-- v-slot 사용 권장 -->
+    <div id="app">
+      <h1>App</h1>
+      <slot-component>
+        <span style="color: green">have children</span>
+      </slot-component>
+      <slot-component> </slot-component>
+      <br />
+      <hr />
+
+      <layout-slot-component>
+        <template v-slot:header>
+          <h3>Header</h3>
+        </template>
+        <template v-slot:default>
+          <h1>Main</h1>
+          <h1>......</h1>
+        </template>
+        <template #footer>
+          <h3>Footer</h3>
+        </template>
+      </layout-slot-component>
+      <br />
+      <hr />
+
+      <slot-scope-component>
+        <template v-slot:default="props">
+          <h3>props text is {{ props.text }}</h3>
+        </template>
+      </slot-scope-component>
+      <slot-scope-component>
+        <template v-slot="props">
+          <h3>props text is {{ props.text }}</h3>
+        </template>
+      </slot-scope-component>
+      <slot-scope-component>
+        <template v-slot="props">
+          <h3>props text is {{ props.text }}</h3>
+        </template>
+        <template v-slot:other="otherSlotProps">
+          <h3>have not props {{ otherSlotProps.text }}</h3>
+        </template>
+      </slot-scope-component>
+      <br />
+      <hr />
+
+      <slot-scope-list :items="items">
+        <template v-slot:item="{ text }">
+          <li>{{ text }}</li>
+        </template>
+      </slot-scope-list>
+      <slot-scope-list :items="items">
+        <template #item="{ text }">
+          <li>{{ text }}</li>
+        </template>
+      </slot-scope-list>
+      <br />
+      <hr />
+
+      <div>
+        <span>This component is</span>
+        <select v-model="currentView">
+          <option value="home" selected>Home</option>
+          <option value="posts">Posts</option>
+          <option value="archive">Archive</option>
+        </select>
+        <span>({{ currentView }})</span>
+        <p>
+          Not Cached Component:
+          <component :is="currentView"></component>
+        </p>
+
+        <p>
+          Cached Component:
+          <keep-alive>
+            <component :is="currentView"></component>
+          </keep-alive>
+        </p>
+      </div>
+      <br />
+      <hr />
+    </div>
+    <script>
+      Vue.component("slot-component", {
+        template: `
+          <div>
+            <h2>
+              Slot Component
+              <slot>
+                <span style="color: red;">have not children</span>
+              </slot>
+            </h2>
+          </div>
+        `,
+      });
+      Vue.component("layout-slot-component", {
+        template: `
+          <div class="container">
+            <header>
+              <slot name="header"></slot>
+            </header>
+            <main>
+              <slot></slot>
+            </main>
+            <footer>
+              <slot name="footer"></slot>
+            </footer>
+          </div>
+      `,
+      });
+      Vue.component("slot-scope-component", {
+        template: `
+          <div class="child">
+            <slot text="hello from child"></slot>
+            <slot name="other" text="bye from child"></slot>
+          </div>
+        `,
+      });
+      Vue.component("slot-scope-list", {
+        template: `
+          <ul>
+            <slot name="item"
+              v-for="item in items"
+              :text="item.text">
+            </slot>
+          </ul>
+        `,
+        props: {
+          items: Array,
+        },
+      });
+
+      // App
+      var app = new Vue({
+        el: "#app",
+        data: {
+          items: [{ text: "Text1" }, { text: "Text2" }, { text: "Text3" }],
+          currentView: "home",
+        },
+        components: {
+          home: {
+            template: `<span style="color: red;">Home Component</span>`,
+            created: function () {
+              console.log("created home component");
+            },
+          },
+          posts: {
+            template: `<span style="color: red;">Posts Component</span>`,
+            created: function () {
+              console.log("created posts component");
+            },
+          },
+          archive: {
+            template: `<span style="color: red;">Archive Component</span>`,
+            created: function () {
+              console.log("created archive component");
+            },
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,381 @@
+<!-- https://kr.vuejs.org/v2/api/ -->
+<!-- v-bind: === : -->
+<!-- v-on:   === @ -->
+<!-- v-slot: === # -->
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Vanila VueJS</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <test-component
+        v-bind:msg="componentMessage"
+        @emit-func="emitFunc"
+      ></test-component>
+      <test></test>
+      <type-component v-bind="types"></type-component>
+      {{ pow2value }}<event-component v-on:increase="pow2"></event-component>
+      <my-checkbox
+        :checked="foo"
+        @change="val => { foo = val }"
+        value="some value"
+      >
+      </my-checkbox>
+      <custom-bus-event></custom-bus-event>
+      <h3 is="is-component">is H3</h3>
+      <br />
+      <hr />
+
+      <div>
+        <span>Ref Component&nbsp;</span>
+        <ref-component
+          ref="tempRef"
+          v-on:ref-change="refChange"
+        ></ref-component>
+      </div>
+      <br />
+      <hr />
+
+      <basic-async-component></basic-async-component>
+      <br />
+      <hr />
+
+      <detail-async-component></detail-async-component>
+      <br />
+      <hr />
+
+      <inline-template inline-template>
+        <h4>This is inline-template's child dom</h4>
+      </inline-template>
+      <br />
+      <hr />
+
+      <x-template></x-template>
+      <br />
+      <hr />
+
+      <cached-component></cached-component>
+      <br />
+      <hr />
+
+      <var-component></var-component>
+      <br />
+      <hr />
+
+      <props-component is-boolean></props-component>
+      <props-component :is-boolean="true"></props-component>
+      <props-component :is-boolean="false"></props-component>
+      <props-component v-bind:array="[123, 456, 'abc']"></props-component>
+      <props-component v-bind:object="{ a: 3, b: '3' }"></props-component>
+      <props-component
+        v-bind="{ isBoolean: true, array: [1, 2], object: { a: 1, b: 2 } }"
+      ></props-component>
+      <custom-constructor-props-component
+        :custom="customObject"
+      ></custom-constructor-props-component>
+      <br />
+      <hr />
+
+      <merge-props-component class="add-class" style="font-size: 24px"
+        >a</merge-props-component
+      >
+      <br />
+      <hr />
+
+      <not-inherit-attrs-component
+        test="123"
+        v-model="customObject"
+        v-bind:value="'abcd'"
+      ></not-inherit-attrs-component>
+      <br />
+      <hr />
+
+      <h3>Child Access To Root Component</h3>
+      <child-component></child-component>
+      <br />
+      <hr />
+    </div>
+    <script type="text/x-template" id="x-template">
+      <p>Hello X-Template</p>
+    </script>
+    <script>
+      var bus = new Vue();
+      bus.$on("custom-event", function (value) {
+        alert(value);
+      });
+
+      Vue.component("temp-component", {
+        template: "<h3>Test</h3>",
+      });
+      Vue.component("test-component", {
+        props: ["msg"],
+        template: `
+          <div>
+            <h2>Test {{ msg }}</h2>
+            <temp-component></temp-component>
+            <button @click="$emit('emit-func', 'emitData')">Remove</button>
+          </div>
+        `,
+      });
+      Vue.component("type-component", {
+        props: {
+          number: Number,
+          string: {
+            type: String,
+            default: "deafult value",
+            validator: function (value) {
+              return value.length < 10;
+            },
+          },
+          array: Array,
+        },
+        template: `
+          <div>
+            <h3>number: {{ number }}</h3>
+            <h3>string: {{ string }}</h3>
+            <h3>array: {{ array }}</h3>
+          </div>
+        `,
+      });
+      Vue.component("event-component", {
+        template: `
+          <div>
+            <p>{{ counter }}</p>
+            <button v-on:click="increase">+</button>
+          </div>
+        `,
+        data: function () {
+          return {
+            counter: 0,
+          };
+        },
+        methods: {
+          increase: function () {
+            this.$emit("increase", ++this.counter);
+          },
+        },
+      });
+      Vue.component("my-checkbox", {
+        model: {
+          prop: "checked",
+          event: "change",
+        },
+        props: {
+          checked: Boolean,
+          value: String,
+        },
+        template: `
+          <div>
+            <p>checked: {{ checked ? "true" : "false" }}</p>
+            <p>value: {{ value }}</p>
+            <input type="checkbox" @change="onChange" :value="value" />
+          </div>  
+        `,
+        methods: {
+          onChange: function (e) {
+            this.$emit("change", e.target.checked);
+          },
+        },
+      });
+      Vue.component("custom-bus-event", {
+        template: `
+          <div>
+            <input v-model="input" />
+            <button @click="emit">Emit</button>
+          </div>
+        `,
+        data: function () {
+          return {
+            input: "",
+          };
+        },
+        methods: {
+          emit: function () {
+            bus.$emit("custom-event", this.input);
+          },
+        },
+      });
+      Vue.component("is-component", {
+        template: `<h2>is H2</h2>`,
+      });
+      Vue.component("ref-component", {
+        template: `<input @change="onChange" />`,
+        methods: {
+          onChange: function (event) {
+            this.$emit("ref-change", event);
+          },
+        },
+      });
+      Vue.component("basic-async-component", function (resolve, reject) {
+        setTimeout(function () {
+          const random = Math.random();
+
+          if (random > 0.1) {
+            resolve({
+              template: `<div>I am async!</div>`,
+            });
+          } else {
+            reject("Render failed");
+          }
+        }, 1200);
+      });
+      Vue.component("detail-async-component", () => ({
+        component: new Promise(async function (resolve, reject) {
+          // reject("Error");
+          setTimeout(function () {
+            resolve(
+              Vue.component("async-component", {
+                template: `<div>I am detail async!</div>`,
+              })
+            );
+          }, 1800);
+        }),
+        loading: Vue.component("loading-component", {
+          template: `<div>Loading...</div>`,
+        }),
+        error: Vue.component("error-component", {
+          template: `<div>Error!</div>`,
+        }),
+        delay: 700,
+        timeout: 3000,
+      }));
+      Vue.component("inline-template", {
+        template: `
+          <div>
+            <slot></slot>
+          </div>
+        `,
+      });
+      Vue.component("x-template", {
+        template: "#x-template",
+      });
+      Vue.component("cached-component", {
+        template: `
+          <div v-once>
+              <h3>this template render once</h3>
+          </div>
+        `,
+      });
+      // Vue.component는 전역 등록, 웹팩같은 빌드 시스템에서 빌드할 때, 사용하지 않는 페이지에서도 전역 등록된 컴포넌트를 받음
+      // 이를 방지하기 위해 지역 등록을 사용하는 게 좋음 (변수 선언형, 내부 컴포넌트 선언형)
+      var varComponent = {
+        template: `
+          <div>
+            <p>This is created for var</p>
+          </div>
+        `,
+      };
+      // 기본 컴포넌트 불필요하게 모든 페이지에서 import 할 필요없이 require.context에 등록해두면 됨.
+      // https://kr.vuejs.org/v2/guide/components-registration.html#기본-컴포넌트를-자동으로-전역-등록하기
+      //
+
+      Vue.component("props-component", {
+        props: {
+          isBoolean: Boolean,
+          array: Array,
+          object: Object,
+        },
+        template: `
+          <li>
+            is-boolean {{ isBoolean ? true : false }} <br/>
+            array {{ array }} <br/>
+            object {{ object }}
+          </li>
+        `,
+      });
+      function CustomConstructor(a, b) {
+        this.a = a;
+        this.b = b;
+      }
+      Vue.component("custom-constructor-props-component", {
+        props: {
+          custom: CustomConstructor,
+        },
+        template: `
+          <div>
+            <h3>custom-constructor-props</h3>
+            <p>a: {{ custom.a }}</p>
+            <p>b: {{ custom.b }}</p>
+          </div>
+        `,
+      });
+      Vue.component("merge-props-component", {
+        template: `<div class="base-class" style="color: #7da;"><slot></slot></div>`,
+      });
+      Vue.component("not-inherit-attrs-component", {
+        inheritAttrs: false,
+        template: `
+          <div>
+            {{ $attrs }}
+          </div>
+        `,
+      });
+
+      // App
+      var app = new Vue({
+        el: "#app",
+        data: {
+          componentMessage: "Message",
+          types: {
+            number: 0,
+            string: "string",
+            array: ["123", 456],
+          },
+          pow2value: 0,
+          foo: false,
+          customObject: new CustomConstructor("a", "b"),
+          rootValue: "this is rootValue!!",
+        },
+        methods: {
+          emitFunc: function (value) {
+            // https://any-ting.tistory.com/41
+            console.log(value);
+          },
+          pow2: function (value) {
+            this.pow2value = Math.pow(value, 2);
+          },
+          refChange: function (event) {
+            alert(event.target.value);
+            setTimeout(
+              function (refs) {
+                alert(refs.tempRef?.$el?.value);
+              },
+              0,
+              this.$refs
+            );
+          },
+          getRootValue: function () {
+            return this.rootValue;
+          },
+        },
+        components: {
+          test: {
+            template: "<h3>!!Test!!</h3>",
+          },
+          "var-component": varComponent,
+          "child-component": {
+            computed: {
+              rootValue: function () {
+                return this.$root.rootValue;
+              },
+            },
+            methods: {
+              getRootValue: function () {
+                return this.$root.getRootValue();
+              },
+            },
+            template: `
+              <div>
+                {{ rootValue }} <br/>
+                {{ getRootValue() }}
+              </div>
+            `,
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

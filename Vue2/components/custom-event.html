@@ -1,0 +1,147 @@
+<!-- https://kr.vuejs.org/v2/api/ -->
+<!-- v-bind: === : -->
+<!-- v-on:   === @ -->
+<!-- v-slot: === # -->
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Vanila VueJS</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <h3>Custom Event</h3>
+      <p>Input Data: {{ eventData }}</p>
+      <custom-event v-on:custom-event="customEvent"></custom-event>
+      <hr />
+      <br />
+
+      <h3>v-model Customizing</h3>
+      <p>Checked: {{ checked }}</p>
+      <v-model-checkbox v-model="checked"></v-model-checkbox>
+      <hr />
+      <br />
+
+      <h3>Native Event</h3>
+      <native-event v-on:input.native="onNativeEvent"></native-event>
+      <hr />
+      <br />
+
+      <h3>Native Event (Detail Case)</h3>
+      <detail-native-event
+        v-bind:label="label"
+        v-bind:value="label"
+        v-on:change="onDetailNativeEvent"
+      ></detail-native-event>
+      <hr />
+      <br />
+
+      <h3>Two way binding</h3>
+      <p>binding value: {{ twoWayBindingValue }}</p>
+      <two-way-binding
+        v-bind:value="twoWayBindingValue"
+        v-on:update:value="onTwoWayBinding"
+      ></two-way-binding>
+      <hr />
+      <br />
+
+      <h3>Two way binding with sync</h3>
+      <p>binding value: {{ twoWayBindingValue }}</p>
+      <two-way-binding v-bind:value.sync="twoWayBindingValue"></two-way-binding>
+      <hr />
+      <br />
+    </div>
+    <script>
+      var app = new Vue({
+        el: "#app",
+        data: {
+          eventData: "",
+          checked: false,
+          label: "",
+          twoWayBindingValue: "",
+        },
+        methods: {
+          customEvent: function (data) {
+            this.eventData = data;
+          },
+          onNativeEvent: function (event) {
+            console.log(event);
+          },
+          onDetailNativeEvent: function (event) {
+            this.label = event.target.value;
+          },
+          onTwoWayBinding: function (data) {
+            this.twoWayBindingValue = data;
+          },
+        },
+        components: {
+          "custom-event": {
+            data: () => ({
+              inputData: "",
+            }),
+            template: `
+              <div>
+                <input v-model="inputData" /><button v-on:click="onInput">SET</button>
+              </div>
+            `,
+            methods: {
+              onInput: function () {
+                this.$emit("custom-event", this.inputData);
+              },
+            },
+          },
+          "v-model-checkbox": {
+            model: {
+              prop: "checked",
+              event: "change",
+            },
+            props: {
+              checked: Boolean,
+            },
+            template: `
+              <input type="checkbox" v-bind:checked="checked" v-on:change="onChange" />
+            `,
+            methods: {
+              onChange: function (event) {
+                this.$emit("change", event.target.checked);
+              },
+            },
+          },
+          "native-event": {
+            template: `<input />`,
+          },
+          "detail-native-event": {
+            inheritAttrs: false,
+            props: ["label", "value"],
+            computed: {
+              inputListeners: function () {
+                const vm = this;
+                return Object.assign({}, this.$listeners, {
+                  input: function (event) {
+                    vm.$emit("input", event.target.value);
+                  },
+                });
+              },
+            },
+            template: `
+              <label>
+                {{ label }}
+                <input v-bind="$attrs" v-bind:value="value" v-on="inputListeners"/>
+              </label>
+            `,
+          },
+          "two-way-binding": {
+            props: ["value"],
+            template: `<input v-bind:value="value" v-on:input="onUpdate" />`,
+            methods: {
+              onUpdate: function (event) {
+                this.$emit("update:value", event.target.value);
+              },
+            },
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

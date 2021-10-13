@@ -1,0 +1,174 @@
+<!-- https://kr.vuejs.org/v2/api/ -->
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Vanila VueJS</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <p>{{ message.replace("Vue", "React") }}</p>
+      <p v-bind:title="loadedPage">
+        내 위에 잠시 마우스를 올리면 동적으로 바인딩된 title을 볼 수 있습니다!
+      </p>
+      <p>
+        <span v-if="seen">이제 나를 볼 수 있어요</span>
+        <button v-on:click="toggleSeen">갱신</button>
+      </p>
+      <ol>
+        <li v-for="todo in todos">{{ todo.text }}</li>
+      </ol>
+      <div>
+        <input v-model="todoContent" placeholder="todo 입력" />
+        <button @click="addTodo">등록</button>
+      </div>
+      <br />
+      <hr />
+
+      <div v-once>Once : {{ modifiableText }}</div>
+      <div>Observe : {{ modifiableText }}</div>
+      <div>
+        <span>Modify :</span>
+        <input v-model="modifiableText" />
+      </div>
+      <br />
+      <hr />
+
+      <div>
+        <p>Using mustaches: {{ rawHtml }}</p>
+        <p>Using v-html directive: <span v-html="rawHtml"></span></p>
+      </div>
+      <div>
+        <p>Using mustaches (cant data binding): {{ rawHtmlNotChanged }}</p>
+        <p>
+          Using v-html directive (cant data binding):
+          <span v-html="rawHtmlNotChanged"></span>
+        </p>
+      </div>
+      <br />
+      <hr />
+
+      <div>
+        <a :href="customUrl">{{ customUrl }}</a>
+        <input v-model.lazy="customUrl" />
+      </div>
+      <br />
+      <hr />
+
+      <p>with computed value : {{ computedValue }}</p>
+      <p>with metohd : {{ computeValue() }}</p>
+      <br />
+      <hr />
+
+      <div>
+        <p>First: {{ firstText }}</p>
+        <p>Last: {{ lastText }}</p>
+        <p>Full: {{ fullText }}</p>
+        <input v-model="inputText" />
+      </div>
+      <br />
+      <hr />
+
+      <h3 v-if="true">v-if true Show!</h3>
+      <h3 v-show="true">v-show true Show!</h3>
+      <br />
+      <hr />
+
+      <div>
+        <p v-for="(value, name, index) in list" :key="index">
+          {{ index }}. {{ name }}: {{ value }}
+        </p>
+        <button @click="changeList">Update Time</button>
+      </div>
+      <br />
+      <hr />
+
+      <div>
+        <span v-for="n in 4" :key="n">{{ n }}</span>
+      </div>
+      <br />
+      <hr />
+    </div>
+    <script>
+      var app = new Vue({
+        el: "#app",
+        data: {
+          message: "안녕하세요 Vue!",
+          loadedPage:
+            "이 페이지는 " +
+            new Date().toLocaleString() +
+            " 에 로드 되었습니다.",
+          seen: true,
+          todos: [
+            { text: "JavaScript 배우기" },
+            { text: "Vue 배우기" },
+            { text: "무언가 멋진 것을 만들기" },
+          ],
+          todoContent: "",
+          modifiableText: "first message",
+          rawHtml: "<span style='color: red'>This should be red.</span>",
+          rawHtmlNotChanged: "<span>{{ modifiableText }}</span>",
+          customUrl: "https://www.naver.com",
+          firstText: "",
+          lastText: "",
+          inputText: "",
+          list: {
+            name: "vue",
+            version: "3",
+            parent: "javascript",
+            time: new Date().toLocaleString(),
+          },
+        },
+        computed: {
+          computedValue: function () {
+            return "Computed Value on " + new Date().toLocaleString();
+          },
+          fullText: {
+            get: function () {
+              return this.firstText + " " + this.lastText;
+            },
+            set: function (newValue) {
+              if (newValue.includes(" ")) {
+                const texts = newValue.split(" ");
+                this.firstText = texts[0];
+                this.lastText = texts[1];
+              } else {
+                this.firstText = newValue;
+                this.lastText = "";
+              }
+            },
+          },
+        },
+        methods: {
+          toggleSeen: function () {
+            this.seen = !this.seen;
+          },
+          addTodo: function () {
+            if (!this.todoContent) return alert("Todo 내용을 입력");
+            this.todos.push({ text: this.todoContent });
+            this.todoContent = "";
+          },
+          computeValue: function () {
+            return "Computed Value on " + new Date().toLocaleString();
+          },
+          changeList: function () {
+            // Vue.set(object, propertyName, value)
+            // vm.$set(object, propertyName, value)
+            // https://kr.vuejs.org/v2/guide/list.html
+            Vue.set(this.list, "time", new Date().toLocaleString());
+          },
+        },
+        watch: {
+          seen: function (newVal, oldVal) {
+            console.log("newVal", newVal);
+            console.log("oldVal", oldVal);
+          },
+          inputText: function (newVal, oldVal) {
+            this.fullText = newVal;
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

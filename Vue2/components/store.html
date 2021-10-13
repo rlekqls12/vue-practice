@@ -1,0 +1,87 @@
+<!-- https://kr.vuejs.org/v2/api/ -->
+<!-- v-bind: === : -->
+<!-- v-on:   === @ -->
+<!-- v-slot: === # -->
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Vanila VueJS</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  </head>
+  <body>
+    <div id="app1">
+      <h3>App1</h3>
+      <p>Data: {{ data }}</p>
+      <input v-model="data" />
+      <hr />
+    </div>
+    <div id="app2">
+      <h3>App2</h3>
+      <p>Data: {{ data }}</p>
+      <input v-model="data" />
+      <hr />
+    </div>
+
+    <br />
+    <hr />
+
+    <div id="app3">
+      <h3>App3</h3>
+      <p>Message: {{ state.message }}</p>
+      <input @input="setMessage" :value="state.message" />
+      <hr />
+    </div>
+    <div id="app4">
+      <h3>App4</h3>
+      <p>Message: {{ state.message }}</p>
+      <input @input="setMessage" :value="state.message" />
+      <hr />
+    </div>
+    <script>
+      var globalData = {
+        data: "",
+      };
+      var app1 = new Vue({
+        el: "#app1",
+        data: globalData,
+      });
+      var app2 = new Vue({
+        el: "#app2",
+        data: globalData,
+      });
+
+      var store = {
+        debug: true,
+        state: {
+          message: "Hello!",
+        },
+        setMessageAction(newValue) {
+          if (this.debug)
+            console.log("setMessageAction triggered with", newValue);
+          this.state.message = newValue;
+        },
+      };
+      var app3 = new Vue({
+        el: "#app3",
+        data: store,
+        methods: {
+          setMessage: function (event) {
+            const value = event.target.value;
+            this.$data.setMessageAction(value);
+          },
+        },
+      });
+      var app4 = new Vue({
+        el: "#app4",
+        data: store,
+        methods: {
+          setMessage: function (event) {
+            const value = event.target.value;
+            this.$data.setMessageAction(value);
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
